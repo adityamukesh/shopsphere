@@ -1,5 +1,7 @@
 # 🛒 ShopSphere
 
+[![CI](https://github.com/vikas0799/shopsphere/actions/workflows/ci.yml/badge.svg)](https://github.com/vikas0799/shopsphere/actions/workflows/ci.yml)
+
 **ShopSphere** is a full-stack e-commerce web app built with the **MERN stack** (MongoDB, Express, React, Node.js). It is designed as a **beginner-friendly open-source project** — the code is clean, the scope is real, and there are plenty of open issues for you to pick up.
 
 ## ✨ Features
