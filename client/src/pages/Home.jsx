@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import api, { getErrorMessage } from '../api/client.js';
 import ProductCard from '../components/ProductCard.jsx';
 import Loader from '../components/Loader.jsx';
+import useDebounce from '../hooks/useDebounce.js';
 import { CATEGORIES } from '../utils/format.js';
 
 export default function Home() {
@@ -9,16 +10,16 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({ search: '', category: '', sort: 'newest' });
+  const debouncedSearch = useDebounce(filters.search, 400);
 
   useEffect(() => {
-    // NOTE: this fires a request on every keystroke - see "Debounce search" issue.
     setLoading(true);
     api
-      .get('/products', { params: filters })
+      .get('/products', { params: { search: debouncedSearch, category: filters.category, sort: filters.sort } })
       .then(({ data }) => setProducts(data))
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false));
-  }, [filters]);
+  }, [debouncedSearch, filters.category, filters.sort]);
 
   const update = (key) => (e) => setFilters((f) => ({ ...f, [key]: e.target.value }));
 
