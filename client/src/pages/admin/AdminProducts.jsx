@@ -33,7 +33,7 @@ export default function AdminProducts() {
   const [error, setError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null); // { id, name }
 
-  const load = () => api.get('/products').then(({ data }) => setProducts(data));
+  const load = () => api.get('/products', { params: { limit: 100 } }).then(({ data }) => setProducts(data.products || data));
   useEffect(() => {
     load();
   }, []);
