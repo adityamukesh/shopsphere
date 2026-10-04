@@ -3,17 +3,25 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 const CartContext = createContext(null);
 const STORAGE_KEY = 'shopsphere_cart';
 
-// The cart lives only in localStorage for now.
-// See issue: "Persist cart on the server for logged-in users".
 export function CartProvider({ children }) {
   const [items, setItems] = useState(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];
   });
+  const [toast, setToast] = useState('');
+  const toastTimer = useRef(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
+
+  const showToast = (message) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast(message);
+    toastTimer.current = setTimeout(() => {
+      setToast('');
+    }, 2800);
+  };
 
   const addToCart = (product, quantity = 1) => {
     setItems((prev) => {
@@ -28,6 +36,7 @@ export function CartProvider({ children }) {
         { product: product._id, name: product.name, price: product.price, image: product.image, quantity },
       ];
     });
+    showToast(`Added "${product.name}" to cart!`);
   };
 
   const updateQuantity = (productId, quantity) => {
@@ -45,7 +54,7 @@ export function CartProvider({ children }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, updateQuantity, removeFromCart, clearCart, totalItems, totalPrice }}
+      value={{ items, addToCart, updateQuantity, removeFromCart, clearCart, totalItems, totalPrice, toast }}
     >
       {children}
     </CartContext.Provider>
