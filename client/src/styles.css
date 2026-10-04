@@ -10,6 +10,30 @@
   --border: #e4e4ee;
   --radius: 10px;
 }
+[data-theme="dark"] {
+  --bg: #0f0f17;
+  --surface: #181824;
+  --text: #f0f0f8;
+  --muted: #9595ab;
+  --primary: #8a6ef5;
+  --primary-dark: #7454eb;
+  --danger: #ff5469;
+  --success: #2fd175;
+  --border: #28283a;
+}
+
+[data-theme="dark"] .tag {
+  background: rgba(138, 110, 245, 0.18);
+  color: var(--primary);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  color: var(--text);
+  background: var(--surface);
+}
+
 
 * { box-sizing: border-box; }
 body {
