@@ -5,11 +5,33 @@ import { CATEGORIES, formatINR } from '../../utils/format.js';
 
 const empty = { name: '', description: '', price: '', category: 'electronics', brand: '', image: '', stock: '' };
 
+// Confirmation modal component to prevent accidental product deletions (fixes issue #1)
+function ConfirmModal({ productName, onConfirm, onCancel }) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100,
+    }}>
+      <div className="card" style={{ maxWidth: 380, width: '90%', padding: '28px 24px', textAlign: 'center' }}>
+        <h3 style={{ marginTop: 0 }}>Delete product?</h3>
+        <p className="muted" style={{ marginBottom: 24 }}>
+          Are you sure you want to delete <strong>{productName}</strong>? This action cannot be undone.
+        </p>
+        <div className="row" style={{ justifyContent: 'center', gap: 12 }}>
+          <button className="btn btn-ghost" onClick={onCancel}>Cancel</button>
+          <button className="btn btn-danger" onClick={onConfirm}>Yes, delete</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState(empty);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(null); // { id, name }
 
   const load = () => api.get('/products').then(({ data }) => setProducts(data));
   useEffect(() => {
@@ -40,9 +62,12 @@ export default function AdminProducts() {
     setForm({ ...empty, ...p, price: String(p.price), stock: String(p.stock) });
   };
 
-  // TODO: add a confirmation dialog before deleting.
-  const remove = async (id) => {
-    await api.delete(`/products/${id}`);
+  // Show confirmation modal before deleting to prevent accidental data loss
+  const handleDeleteClick = (product) => setConfirmDelete({ id: product._id, name: product.name });
+
+  const confirmRemove = async () => {
+    await api.delete(`/products/${confirmDelete.id}`);
+    setConfirmDelete(null);
     load();
   };
 
@@ -92,12 +117,20 @@ export default function AdminProducts() {
               <td>{p.stock}</td>
               <td className="row">
                 <button className="btn btn-ghost" onClick={() => edit(p)}>Edit</button>
-                <button className="btn btn-danger" onClick={() => remove(p._id)}>Delete</button>
+                <button className="btn btn-danger" onClick={() => handleDeleteClick(p)}>Delete</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {confirmDelete && (
+        <ConfirmModal
+          productName={confirmDelete.name}
+          onConfirm={confirmRemove}
+          onCancel={() => setConfirmDelete(null)}
+        />
+      )}
     </section>
   );
 }
